@@ -633,13 +633,18 @@ int main(int argc, char *argv[]) {
     int ret = AVERROR_EXIT;
 
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input file> <output file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input>.<extension> <output>.ogg \n",
+                argv[0]);
         exit(EXIT_FAILURE);
     }
 
+    const size_t argv2_len = strlen(argv[2]);
+    char *output_filename = malloc(argv2_len + 5);
+    snprintf(output_filename, argv2_len + 5, "%s.ogg", argv[2]);
+
     if (open_input_file(argv[1], &in)) goto cleanup;
 
-    if (open_output_file(argv[2], &out)) goto cleanup;
+    if (open_output_file(output_filename, &out)) goto cleanup;
 
     if (init_resampler(&in, &out, &swr)) goto cleanup;
 
@@ -702,5 +707,8 @@ cleanup:
     }
     if (in.codec_ctx) avcodec_free_context(&in.codec_ctx);
     if (in.fmt_ctx) avformat_close_input(&in.fmt_ctx);
+    if (ret == 0) printf("\x1B[1;32mDONE\x1B[0m -> '%s'\n", output_filename);
+    free(output_filename);
+    output_filename = NULL;
     return ret;
 }
