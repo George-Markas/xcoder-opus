@@ -12,6 +12,7 @@
 typedef struct Input_Context {
     AVFormatContext *fmt_ctx;
     AVCodecContext *codec_ctx;
+    int stream_idx;
 } input_ctx;
 
 typedef struct Output_Context {

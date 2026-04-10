@@ -29,15 +29,15 @@ static int open_input_file(const char *filename, input_ctx *in) {
     }
 
     // Get the correct stream index
-    const int stream_idx = av_find_best_stream(in->fmt_ctx, AVMEDIA_TYPE_AUDIO,
+    in->stream_idx = av_find_best_stream(in->fmt_ctx, AVMEDIA_TYPE_AUDIO,
                                                -1, -1, &input_codec, 0);
-    if (stream_idx < 0) {
+    if (in->stream_idx < 0) {
         fprintf(stderr, "Could not find stream (error '%s')\n",
-                av_err2str(stream_idx));
+                av_err2str(in->stream_idx));
         goto cleanup;
     }
 
-    stream = in->fmt_ctx->streams[stream_idx];
+    stream = in->fmt_ctx->streams[in->stream_idx];
 
     // Find the corresponding codec for the stream
     if (!(input_codec = avcodec_find_decoder(stream->codecpar->codec_id))) {
@@ -271,16 +271,25 @@ static int decode_audio_frame(AVFrame *frame, const input_ctx *in,
 
     *data_present = false;
     *finished = false;
-    if ((ret = av_read_frame(in->fmt_ctx, input_packet)) < 0) {
-        // If end of file is reached, flush the decoder below
-        if (ret == AVERROR_EOF) {
-            *finished = true;
-        } else {
-            fprintf(stderr, "Could not read frame (error '%s')\n",
-                    av_err2str(ret));
-            goto cleanup;
+
+    // The do-while loop is to skip packets that belong to a
+    // video stream, in case there is embedded cover art present.
+    // The unref is also needed to clean up after skipped packets.
+    do {
+        av_packet_unref(input_packet);
+
+        if ((ret = av_read_frame(in->fmt_ctx, input_packet)) < 0) {
+            // If end of file is reached, flush the decoder below
+            if (ret == AVERROR_EOF) {
+                *finished = true;
+            } else {
+                fprintf(stderr, "Could not read frame (error '%s')\n",
+                        av_err2str(ret));
+                goto cleanup;
+            }
+            break;
         }
-    }
+    } while (input_packet->stream_index != in->stream_idx);
 
     // Send the audio frame stored in the temporary packet to the decoder
     if ((ret = avcodec_send_packet(in->codec_ctx, input_packet)) < 0) {
