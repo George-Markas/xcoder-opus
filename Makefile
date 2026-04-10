@@ -8,8 +8,17 @@ SRC := $(wildcard $(SRC_DIR)/*.c)
 INC := $(addprefix -I, $(INC_DIR))
 OBJ := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
 
-CC 	   := gcc
-CFLAGS := -std=c11 -O2 -Wall -Wextra
+CC := gcc
+override FLAGS 		   += -std=c11 -Wall -Wextra -Werror -pedantic
+override FLAGS_DEBUG   += $(FLAGS) -fsanitize=address -g
+override FLAGS_RELEASE += $(FLAGS) -O2
+
+CFLAGS := $(FLAGS_RELEASE)
+
+ifeq ($(MAKECMDGOALS), debug)
+	CFLAGS := $(FLAGS_DEBUG)
+endif
+
 LDLIBS := -lavformat -lavcodec -lavutil -lswresample
 
 V ?= 0
@@ -25,6 +34,9 @@ all: $(TARGET)
 
 .PHONY: debug all clean
 
+debug: FLAGS = $(FLAGS_DEBUG)
+debug: all
+
 $(BUILD_DIR):
 	@mkdir -p $@
 
@@ -34,7 +46,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 
 $(TARGET): $(OBJ)
 	$(msg) "LD" $@
-	$(Q)$(CC) $^ $(LDLIBS) -o $@
+	$(Q)$(CC) $(CFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
 	$(msg) "CLEAN" $(BUILD_DIR)
