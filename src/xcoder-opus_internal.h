@@ -7,7 +7,7 @@
 #include <libavutil/audio_fifo.h>
 #include <libswresample/swresample.h>
 
-#define OUTPUT_SAMPLE_RATE 48000  // 48000 kHz
+#define OUTPUT_SAMPLE_RATE 48000 // 48000 kHz
 #define OUTPUT_CHANNELS 2
 
 typedef struct Input_Context {
