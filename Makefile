@@ -1,6 +1,6 @@
-SRC_DIR   := src/main/c/src
-INC_DIR   := src/main/c/include
-OBJ_DIR   := target/c
+SRC_DIR := src/main/c/src
+INC_DIR := src/main/c/include
+OBJ_DIR := target/c
 
 TARGET := src/main/resources/native/linux-x86-64/libxcoder-opus.so
 
