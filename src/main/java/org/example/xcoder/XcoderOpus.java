@@ -21,5 +21,5 @@ public class XcoderOpus {
      * of a compatible container e.g. OGG.
      * @param outputBitRate The output bit rate in Hz e.g. 128000.
      */
-    public native void transcodeToOpus(String inputFile, String outputFile, int outputBitRate);
+    public static native void transcodeToOpus(String inputFile, String outputFile, int outputBitRate);
 }

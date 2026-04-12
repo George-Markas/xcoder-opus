@@ -11,7 +11,7 @@ public class NativeLoader {
     public static void loadLibrary(String libName) throws IOException {
         if (!"linux".equalsIgnoreCase(System.getProperty("os.name")) ||
                 !"amd64".equalsIgnoreCase(System.getProperty("os.arch"))) {
-            throw new UnsupportedOperationException("Only Linux x86-64 is supported as of yet");
+            throw new UnsupportedOperationException("Only Linux x86-64 is supported");
         }
 
         String platformLibName = System.mapLibraryName(libName);
