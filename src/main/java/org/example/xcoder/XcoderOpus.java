@@ -1,24 +1,25 @@
 package org.example.xcoder;
 
+import java.io.IOException;
+
 public class XcoderOpus {
 
-    /* 1. SET THIS MANUALLY */
-    // <absolute path to project>/src/main/resources/native/linux-x86-64/libxcoder-opus.so
-    private static final String SHARED_LIB = "";
+    private static final String LIB_NAME = "xcoder-opus";
 
     static {
-        System.load(SHARED_LIB);
+        try {
+            NativeLoader.loadLibrary(LIB_NAME);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load native library", e);
+        }
     }
 
-    public native void transcode(String inputFile, String outputFile, int outputBitRate);
-
-    public static void main(String[] args) {
-        final int OUTPUT_BIT_RATE = 256000;
-
-        /* 2. SET THESE MANUALLY */
-        final String inputFile = "";
-        final String outputFile = "";
-
-        new XcoderOpus().transcode(inputFile, outputFile, OUTPUT_BIT_RATE);
-    }
+    /**
+     * Transcode an audio file to Opus.
+     * @param inputFile The name of the input file.
+     * @param outputFile The name of the output file. The file extension must be that
+     * of a compatible container e.g. OGG.
+     * @param outputBitRate The output bit rate in Hz e.g. 128000.
+     */
+    public native void transcodeToOpus(String inputFile, String outputFile, int outputBitRate);
 }

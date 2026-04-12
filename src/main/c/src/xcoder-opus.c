@@ -1,24 +1,15 @@
 #include "xcoder-opus_internal.h"
 #include "../include/xcoder-opus.h"
 
-#include <stdio.h>
-#include <string.h>
-
 int64_t pts = 0;
 
 JNIEXPORT jint JNICALL
-Java_org_example_xcoder_XcoderOpus_transcode(JNIEnv *env,
+Java_org_example_xcoder_XcoderOpus_transcodeToOpus(JNIEnv *env,
         __attribute__((unused)) jobject obj, jstring j_input_file,
         jstring j_output_file, jint j_output_bit_rate) {
 
     const char *input_file = (*env)->GetStringUTFChars(env, j_input_file, 0);
-
-    // Append the ".ogg" extension to the output file name
-    const jsize len = (*env)->GetStringUTFLength(env, j_output_file);
-    const char *temp = (*env)->GetStringUTFChars(env, j_output_file, 0);
-    const char *output_file = malloc(len + 5); // ".ogg"
-    snprintf((char *) output_file, len + 5, "%s.ogg", temp);
-
+    const char *output_file = (*env)->GetStringUTFChars(env, j_output_file, 0);
     const int64_t output_bit_rate = (int64_t) j_output_bit_rate;
 
     input_ctx in = {.fmt_ctx = NULL, .codec_ctx = NULL};
@@ -92,9 +83,7 @@ cleanup:
     }
     if (in.codec_ctx) avcodec_free_context(&in.codec_ctx);
     if (in.fmt_ctx) avformat_close_input(&in.fmt_ctx);
-    (*env)->ReleaseStringUTFChars(env, j_output_file, temp);
     (*env)->ReleaseStringUTFChars(env, j_input_file, input_file);
-    free((void *) output_file);
-    output_file = NULL;
+    (*env)->ReleaseStringUTFChars(env, j_output_file, output_file);
     return (jint) ret;
 }
