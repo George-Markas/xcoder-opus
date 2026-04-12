@@ -4,6 +4,7 @@ target/
 !**/src/test/**/target/
 .kotlin
 src/main/resources/native/linux-x86-64/libxcoder-opus.so
+src/main/java/Main.java
 
 ### IntelliJ IDEA ###
 .idea
