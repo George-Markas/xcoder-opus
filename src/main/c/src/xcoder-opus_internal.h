@@ -56,7 +56,6 @@ int init_resampler(const input_ctx *in, const output_ctx *out,
 int init_fifo(AVAudioFifo **fifo, const AVCodecContext *output_codec_ctx,
               JNIEnv *env);
 
-
 /**
  * Write the header of the output file container.
  */
