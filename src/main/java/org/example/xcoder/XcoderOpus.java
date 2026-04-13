@@ -10,7 +10,7 @@ public class XcoderOpus {
         try {
             NativeLoader.loadLibrary(LIB_NAME);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load native library", e);
+            throw new ExceptionInInitializerError("Failed to load native library");
         }
     }
 

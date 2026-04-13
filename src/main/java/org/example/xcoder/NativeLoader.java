@@ -23,7 +23,7 @@ public class NativeLoader {
             }
 
             // Extract to a temporary file that will be deleted on JVM exit
-            Path temp = Files.createTempFile("native-" + libName, ".so");
+            Path temp = Files.createTempFile("native-" + libName, null);
             temp.toFile().deleteOnExit();
             Files.copy(inputStream, temp, StandardCopyOption.REPLACE_EXISTING);
 

@@ -6,8 +6,6 @@ target/
 src/main/java/Main.java
 CMakeLists.txt
 cmake-build-*/
-libxcoder-opus.so
-
 
 ### IntelliJ IDEA ###
 .idea
