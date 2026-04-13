@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdint.h>
 #include <jni.h>
 
 JNIEXPORT jint JNICALL

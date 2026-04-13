@@ -16,10 +16,11 @@ public class XcoderOpus {
 
     /**
      * Transcode an audio file to Opus.
-     * @param inputFile The name of the input file.
-     * @param outputFile The name of the output file. The file extension must be that
-     * of a compatible container e.g. OGG.
+     *
+     * @param inputFile     The name of the input file.
+     * @param outputFile    The name of the output file. The file extension must be that
+     *                      of a compatible container e.g. OGG.
      * @param outputBitRate The output bit rate in Hz e.g. 128000.
      */
-    public static native void transcodeToOpus(String inputFile, String outputFile, int outputBitRate);
+    public static native void transcodeToOpus(String inputFile, String outputFile, int outputBitRate) throws TranscodingFailedException;
 }

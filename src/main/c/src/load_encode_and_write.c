@@ -5,9 +5,10 @@
  */
 static int init_output_frame(AVFrame **frame,
                              const AVCodecContext *output_codec_ctx,
-                             int frame_size);
+                             int frame_size, JNIEnv *env);
 
-int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out) {
+int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out,
+                          JNIEnv *env) {
     AVFrame *output_frame = NULL;
 
     // We always use the maximum number of possible samples per frame.
@@ -23,7 +24,7 @@ int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out) {
     bool data_written;
 
     if (init_output_frame(&output_frame, out->codec_ctx,
-                          out->codec_ctx->frame_size))
+                          out->codec_ctx->frame_size, env))
         return AVERROR_EXIT;
 
     // Pad the last "partial" frame with silence as to make sure it makes
@@ -35,13 +36,13 @@ int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out) {
 
     if (av_audio_fifo_read(fifo, (void **) output_frame->data, real_samples)
         < real_samples) {
-        fprintf(stderr, "Could not read data from FIFO\n");
+        print_and_throw(env, "Could not read data from FIFO\n");
         av_frame_free(&output_frame);
         return AVERROR_EXIT;
     }
 
     // Encode one frame's worth of samples
-    if (encode_audio_frame(output_frame, out, &data_written)) {
+    if (encode_audio_frame(output_frame, out, &data_written, env)) {
         av_frame_free(&output_frame);
         return AVERROR_EXIT;
     }
@@ -53,11 +54,11 @@ int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out) {
 
 static int init_output_frame(AVFrame **frame,
                              const AVCodecContext *output_codec_ctx,
-                             const int frame_size) {
+                             const int frame_size, JNIEnv *env) {
     int ret;
 
     if (!(*frame = av_frame_alloc())) {
-        fprintf(stderr, "Failed to allocate output frame\n");
+        print_and_throw(env, "Failed to allocate output frame\n");
         return AVERROR_EXIT;
     }
 
@@ -69,8 +70,9 @@ static int init_output_frame(AVFrame **frame,
 
     // Allocate the samples of the created frame
     if ((ret = av_frame_get_buffer(*frame, 0)) < 0) {
-        fprintf(stderr, "Failed to allocate output frame samples (error '%s')",
-                av_err2str(ret));
+        print_and_throw(
+            env, "Failed to allocate output frame samples (error '%s')",
+            av_err2str(ret));
         av_frame_free(frame);
         return ret;
     }

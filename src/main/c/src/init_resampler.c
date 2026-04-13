@@ -1,7 +1,7 @@
 #include "xcoder-opus_internal.h"
 
 int init_resampler(const input_ctx *in, const output_ctx *out,
-                   SwrContext **swr) {
+                   SwrContext **swr, JNIEnv *env) {
     // Set conversion parameters for the resampler
     int ret = swr_alloc_set_opts2(swr,
                                   &out->codec_ctx->ch_layout,
@@ -12,14 +12,14 @@ int init_resampler(const input_ctx *in, const output_ctx *out,
                                   in->codec_ctx->sample_rate,
                                   0, NULL);
     if (ret < 0) {
-        fprintf(stderr, "Failed to allocate resample context (error '%s')\n",
+        print_and_throw(env, "Failed to allocate resample context (error '%s')\n",
                 av_err2str(ret));
         return ret;
     }
 
     // Initialize the resampler
     if ((ret = swr_init(*swr)) < 0) {
-        fprintf(stderr, "Could not open resampler (error '%s')\n",
+        print_and_throw(env, "Could not open resampler (error '%s')\n",
                 av_err2str(ret));
         return ret;
     }

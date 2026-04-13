@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 
+#include <jni.h>
+
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/audio_fifo.h>
@@ -27,57 +29,66 @@ typedef struct Output_Context {
 extern int64_t pts;
 
 /**
+ * Helper function to throw TranscodingFailedException from the C side.
+ */
+void print_and_throw(JNIEnv *env, const char *error_msg, ...);
+
+/**
  * Open an input file and the required decoder.
  */
-int open_input_file(const char *filename, input_ctx *in);
+int open_input_file(const char *filename, input_ctx *in, JNIEnv *env);
 
 /**
  * Open an output file and the Opus encoder.
  */
-int open_output_file(const char *filename, output_ctx *out, int64_t output_bit_rate);
+int open_output_file(const char *filename, output_ctx *out,
+                     int64_t output_bit_rate, JNIEnv *env);
 
 /**
  * Initialize the audio resampler based on the input and output codec settings.
  */
 int init_resampler(const input_ctx *in, const output_ctx *out,
-                   SwrContext **swr);
+                   SwrContext **swr, JNIEnv *env);
 
 /**
  * Initialize a FIFO buffer for the audio samples to be encoded.
  */
-int init_fifo(AVAudioFifo **fifo, const AVCodecContext *output_codec_ctx);
+int init_fifo(AVAudioFifo **fifo, const AVCodecContext *output_codec_ctx,
+              JNIEnv *env);
 
 
 /**
  * Write the header of the output file container.
  */
-int write_output_file_header(AVFormatContext *output_format_ctx);
+int write_output_file_header(AVFormatContext *output_format_ctx, JNIEnv *env);
 
 /**
  * Initialize one data packet for reading or writing.
  */
-int init_packet(AVPacket **packet);
+int init_packet(AVPacket **packet, JNIEnv *env);
 
 /**
  * Read one frame from the input file, decode it, convert it and store it.
  */
 int read_decode_convert_and_store(AVAudioFifo *fifo, const input_ctx *in,
                                   const AVCodecContext *output_codec_ctx,
-                                  SwrContext *swr, bool *finished);
+                                  SwrContext *swr, bool *finished,
+                                  JNIEnv *env);
 
 /**
  * Load one audio frame from the FIFO buffer, encode and write it to the
  * output file.
  */
-int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out);
+int load_encode_and_write(AVAudioFifo *fifo, const output_ctx *out,
+                          JNIEnv *env);
 
 /**
  * Encode one frame's worth of audio to the output file.
  */
 int encode_audio_frame(AVFrame *frame, const output_ctx *out,
-                       bool *data_present);
+                       bool *data_present, JNIEnv *env);
 
 /**
  * Write the trailer of the output file container
  */
-int write_output_file_trailer(AVFormatContext *output_format_ctx);
+int write_output_file_trailer(AVFormatContext *output_format_ctx, JNIEnv *env);
