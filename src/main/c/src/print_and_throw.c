@@ -12,7 +12,7 @@ void print_and_throw(JNIEnv *env, const char *error_msg, ...) {
     va_end(args);
 
     if (len < 0) {
-        const char *fallback_msg = "Output error: vsnprintf() returned negative\n";
+        const char *fallback_msg = "Output error; vsnprintf() returned negative\n";
         throw_exception(env, fallback_msg);
         return;
     }
